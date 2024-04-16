@@ -2,12 +2,20 @@
 """Flask Application
 """
 from os import getenv
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response, jsonify, current_app
 from api.v1.views import app_views
+from dotenv import load_dotenv
 
 
+load_dotenv()
 app = Flask(__name__)
 app.register_blueprint(app_views)
+
+
+@app.before_request
+def before_request():
+    from utils.shopify_store import session
+    setattr(current_app, 'shopify_session', session)
 
 
 @app.errorhandler(404)
@@ -46,6 +54,7 @@ def forbidden(error):
 if __name__ == "__main__":
     """Main application
     """
-    host = getenv("API_HOST", "0.0.0.0")
-    port = getenv("API_PORT", "4000")
-    app.run(host=host, port=port, threaded=True, debug=True)
+    host = getenv("API_HOST")
+    port = getenv("API_PORT")
+    app.run(host=host, port=port,
+            threaded=True, debug=True)
