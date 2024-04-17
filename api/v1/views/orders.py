@@ -3,7 +3,6 @@
 """
 from api.v1.views import app_views
 from flask import make_response, jsonify, current_app
-from os import getenv
 
 
 @app_views.route("/orders", methods=["GET"], strict_slashes=False)

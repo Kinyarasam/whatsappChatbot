@@ -2,14 +2,15 @@
 """Handle all logic connections to shopify
 """
 import shopify
-from typing import Any, List, Self
-from os import getenv
+from typing import Any, List
 import ssl
 
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
 class ShopifyConnect:
+    """Shopify Authentication class.
+    """
     def __init__(self, shop_url, version, access_token):
         """Handle connection to a shopify store
         """
@@ -46,32 +47,38 @@ class ShopifyUtil(ShopifyConnect):
         return self
 
     def __init__(self, shop_url, version, access_token):
+        """initialization of ShopUtil
+        """
         super().__init__(shop_url, version, access_token)
     
     def __call__(self, *args: Any, **kwds: Any) -> Any:
+        """
+        """
         return super().__call__(*args, **kwds)
 
-    # def __str__(self):
-    #     return "{}".format(self._current_shop)
-        
     def get_orders(self) -> List:
         """Get Orders
         """
         orders = []
-        print(self._current_shop)
         try:
             orders = shopify.Order.find(limit=10)
             orders = [order.to_dict() for order in orders]
         except Exception as e:
-            # print(self._token)
             print(e.__class__.__name__, e.code, e.response.msg)
-            import json
-            # print(json.dumps(e.response.headers, indent=2))
         return orders
     
+    def get_customers(self) -> List:
+        """Get Customers
+        """
+        customers = []
+        try:
+            customers = shopify.Customer.find(limit=10)
+            customers = [customer.to_dict() for customer in customers]
+        except Exception as e:
+            print(e.__class__.__name__, e.code, e.response.msg)
+        return customers
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        print('exited')
-        # shopify.ShopifyResource.destroy(self.session)
-        # print(shopify.Order.find())
+        """
+        """
         return self

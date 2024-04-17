@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Flask Application
 """
-from os import getenv
+from dotenv import load_dotenv
+from os import environ
 from flask import Flask, make_response, jsonify, current_app
 from api.v1.views import app_views
 from dotenv import load_dotenv
@@ -10,6 +11,12 @@ from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
 app.register_blueprint(app_views)
+
+
+@app.teardown_appcontext
+def teardown(error):
+    """
+    """
 
 
 @app.before_request
@@ -51,10 +58,21 @@ def forbidden(error):
     return make_response(jsonify({"error": "Forbidden"}), 401)
 
 
+@app.errorhandler(400)
+def missing(error):
+    """400 Error
+    ---
+    responses:
+      400:
+        description: Missing parameters/Not a JSON
+    """
+    return make_response(jsonify({"error": "Missing parameters/Not a JSON"}))
+
+
 if __name__ == "__main__":
     """Main application
     """
-    host = getenv("API_HOST")
-    port = getenv("API_PORT")
+    host = environ.get("API_HOST")
+    port = environ.get("API_PORT")
     app.run(host=host, port=port,
             threaded=True, debug=True)
