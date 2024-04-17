@@ -67,15 +67,57 @@ class ShopifyUtil(ShopifyConnect):
             print(e.__class__.__name__, e.code, e.response.msg)
         return orders
     
-    def get_customers(self) -> List:
+    def get_customers(self, **kwargs) -> List:
         """Get Customers
         """
         customers = []
+        if "id" in kwargs.keys():
+            kwargs["id_"] = int(kwargs["id"])
+            del kwargs["id"]
+
         try:
-            customers = shopify.Customer.find(limit=10)
+            c = shopify.Customer.find(**kwargs)
+            if not isinstance(c, list):
+                customers.append(c)
+            else:
+                customers.extend(c)
+
             customers = [customer.to_dict() for customer in customers]
+            print(len(customers))
         except Exception as e:
-            print(e.__class__.__name__, e.code, e.response.msg)
+            print(e)
+            # print(e.__class__.__name__, e.code, e.response.msg)
+        return customers
+    
+    def customer_count(self, **kwargs):
+        """Get body Counts
+        """
+        count = 0
+        try:
+            count = shopify.Customer.count(**kwargs)
+        except Exception as e:
+            print(e.__class__.__name__, str(e))
+
+        return count
+    
+    def search_customer(self, **kwargs):
+        """Search customers matching given criterias
+        """
+        print(kwargs)
+        customers = []
+        try:
+            c = shopify.Customer.search(**kwargs)
+            print(c)
+            if not isinstance(c, list):
+                customers.append(c)
+            else:
+                customers.extend(c)
+
+            customers = [customer.to_dict() for customer in customers]
+            print(len(customers))
+        except Exception as e:
+            print(e)
+
         return customers
 
     def __exit__(self, exc_type, exc_val, exc_tb):
